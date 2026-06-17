@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Devil Jump Mirror</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="stage-wrap">
+        <canvas id="stage" width="135" height="240" aria-label="Devil Jump mirror"></canvas>
+      </section>
+      <aside class="panel">
+        <div>
+          <p class="eyebrow">M5Stick Live Mirror</p>
+          <h1>DEVIL JUMP</h1>
+        </div>
+        <div class="stats">
+          <div><span>状态</span><strong id="state">未连接</strong></div>
+          <div><span>关卡</span><strong id="level">-</strong></div>
+          <div><span>高度</span><strong id="score">0</strong></div>
+          <div><span>最佳</span><strong id="best">0</strong></div>
+        </div>
+        <button id="connect" type="button">手动连接串口</button>
+        <p id="hint">正在连接本地桥接服务...</p>
+      </aside>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
