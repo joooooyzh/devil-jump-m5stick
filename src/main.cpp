@@ -107,9 +107,15 @@ void initAudio() {
   if (!audioEnabled) {
     return;
   }
+#if defined(DEVIL_JUMP_STICKS3)
+  M5.Speaker.setVolume(96);
+  M5.Speaker.setChannelVolume(0, 220);
+  M5.Speaker.setChannelVolume(1, 200);
+#else
   M5.Speaker.setVolume(46);
   M5.Speaker.setChannelVolume(0, 120);
   M5.Speaker.setChannelVolume(1, 110);
+#endif
 }
 
 void playBounceSound() {
@@ -121,25 +127,42 @@ void playBounceSound() {
     return;
   }
   lastBounceSoundAt = now;
+#if defined(DEVIL_JUMP_STICKS3)
+  M5.Speaker.tone(1568, 70, 0, true);
+#else
   M5.Speaker.tone(1175, 45, 0, true);
+#endif
 }
 
 void playStartSound() {
   if (audioEnabled) {
+#if defined(DEVIL_JUMP_STICKS3)
+    M5.Speaker.tone(1319, 90, 0, true);
+#else
     M5.Speaker.tone(988, 70, 0, true);
+#endif
   }
 }
 
 void playFailureSound() {
   if (audioEnabled) {
+#if defined(DEVIL_JUMP_STICKS3)
+    M5.Speaker.tone(330, 260, 0, true);
+#else
     M5.Speaker.tone(392, 210, 0, true);
+#endif
   }
 }
 
 void playSuccessSound() {
   if (audioEnabled) {
+#if defined(DEVIL_JUMP_STICKS3)
+    M5.Speaker.tone(1568, 220, 0, true);
+    M5.Speaker.tone(2093, 260, 1, true);
+#else
     M5.Speaker.tone(1319, 180, 0, true);
     M5.Speaker.tone(1760, 220, 1, true);
+#endif
   }
 }
 
@@ -538,7 +561,11 @@ void readInput() {
   float az = 0.0f;
 
   if (M5.Imu.isEnabled() && M5.Imu.getAccel(&ax, &ay, &az)) {
+#if defined(DEVIL_JUMP_STICKS3)
+    player.vx += ay * kMoveAccel * 3.2f;
+#else
     player.vx -= ax * kMoveAccel * 3.2f;
+#endif
   }
 
   if (M5.BtnA.isPressed()) {
@@ -695,6 +722,9 @@ void showBootScreen() {
 void setup() {
   auto cfg = M5.config();
   cfg.serial_baudrate = 115200;
+#if defined(DEVIL_JUMP_STICKS3)
+  cfg.fallback_board = m5::board_t::board_M5StickS3;
+#endif
   M5.begin(cfg);
 
   M5.Display.setRotation(0);
@@ -705,6 +735,7 @@ void setup() {
   canvas.setTextDatum(TL_DATUM);
   backgroundCanvas.setTextDatum(TL_DATUM);
   initAudio();
+  playStartSound();
 
   resetGame();
   showBootScreen();
