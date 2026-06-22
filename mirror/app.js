@@ -74,7 +74,11 @@ function drawIdle() {
 }
 
 function drawBottomText(text) {
-  ctx.font = "bold 8px system-ui, sans-serif";
+  let size = 8;
+  do {
+    ctx.font = `bold ${size}px system-ui, sans-serif`;
+    size -= 1;
+  } while (ctx.measureText(text).width > logical.w - 8 && size >= 5);
   ctx.textAlign = "center";
   ctx.lineWidth = 3;
   ctx.strokeStyle = "#081020";
@@ -91,6 +95,13 @@ function platformColor(level) {
   return ["#a5ff54", "#4df8ff", "#ffdd38", "#ff9d35", "#ffffff", "#ff5dff", "#ffe761"][level - 1] || "#ffffff";
 }
 
+function difficultyLabel(data) {
+  if (data.mode === "EASY") return "EASY";
+  if (data.mode === "STANDARD") return "STANDARD";
+  if (data.mode === "HARD") return `HARD ${"★".repeat(data.stars || 1)}`;
+  return "";
+}
+
 function drawHud(data) {
   const color = hudColor(data.level);
   ctx.font = "bold 8px system-ui, sans-serif";
@@ -105,6 +116,9 @@ function drawHud(data) {
   ctx.fillText(left, 4, 11);
   ctx.strokeText(alt, 4, 21);
   ctx.fillText(alt, 4, 21);
+  const mode = difficultyLabel(data);
+  ctx.strokeText(mode, 4, 31);
+  ctx.fillText(mode, 4, 31);
 
   const best = `B ${data.best}`;
   const width = ctx.measureText(best).width;
@@ -171,7 +185,7 @@ function render(data) {
 
   if (data.state === "home") {
     drawCover(images.home);
-    drawBottomText("A/B START");
+    drawBottomText(`${difficultyLabel(data) || "HARD ★★★★★"}  A MODE  B START`);
   } else if (data.state === "gameover") {
     drawCover(images.gameover);
     drawBottomText("A/B HOME");
@@ -190,7 +204,7 @@ function render(data) {
   }
 
   stateEl.textContent = stateNames[data.state] || data.state || "未知";
-  levelEl.textContent = data.level ? `L${data.level}` : "-";
+  levelEl.textContent = data.level ? `L${data.level} ${difficultyLabel(data)}` : difficultyLabel(data) || "-";
   scoreEl.textContent = data.score ?? 0;
   bestEl.textContent = data.best ?? 0;
 }

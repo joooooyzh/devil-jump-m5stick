@@ -18,7 +18,7 @@ constexpr uint16_t kHorn = 0xFEE0;
 constexpr uint16_t kWing = 0xB104;
 
 constexpr int kPlatformCount = 9;
-constexpr int kWinScore = 2450;
+constexpr int kBaseWinScore = 2450;
 constexpr float kMoveAccel = 0.24f;
 constexpr float kFriction = 0.94f;
 constexpr uint16_t kConfettiColors[] = {
@@ -65,6 +65,12 @@ struct Player {
   float vy;
 };
 
+enum class DifficultyMode {
+  Easy,
+  Standard,
+  Hard,
+};
+
 int screenW = 0;
 int screenH = 0;
 int playerW = 10;
@@ -83,6 +89,8 @@ uint32_t lastTelemetry = 0;
 uint32_t telemetrySeq = 0;
 int displayedLevel = 1;
 int cachedBackgroundIndex = -1;
+DifficultyMode difficultyMode = DifficultyMode::Hard;
+int hardStars = 5;
 
 Player player;
 Platform platforms[kPlatformCount];
@@ -103,9 +111,130 @@ const LevelRule& currentLevel() {
   return kLevels[levelIndexForScore(score)];
 }
 
+const char* difficultyCode() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return "EASY";
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return "STANDARD";
+  }
+  return "HARD";
+}
+
+const char* difficultyShortCode() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return "E";
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return "S";
+  }
+  return "H";
+}
+
+int difficultyStars() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 1;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 3;
+  }
+  return hardStars;
+}
+
+float gravityScale() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 0.82f;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 0.94f;
+  }
+  return 1.0f + (hardStars - 1) * 0.035f;
+}
+
+float jumpScale() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 0.95f;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 0.99f;
+  }
+  return 1.0f + (hardStars - 1) * 0.015f;
+}
+
+float maxVXScale() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 0.86f;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 0.95f;
+  }
+  return 1.0f + (hardStars - 1) * 0.025f;
+}
+
+float gapScale() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 0.76f;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 0.90f;
+  }
+  return 1.0f + (hardStars - 1) * 0.045f;
+}
+
+float widthScale() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 1.34f;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 1.12f;
+  }
+  return max(0.68f, 1.0f - (hardStars - 1) * 0.045f);
+}
+
+float jumpVelocityForLevel() {
+  return currentLevel().jumpVelocity * jumpScale();
+}
+
+int winScoreForDifficulty() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    return 1550;
+  }
+  if (difficultyMode == DifficultyMode::Standard) {
+    return 2100;
+  }
+  return kBaseWinScore + (hardStars - 5) * 170;
+}
+
+void cycleDifficulty() {
+  if (difficultyMode == DifficultyMode::Easy) {
+    difficultyMode = DifficultyMode::Standard;
+  } else if (difficultyMode == DifficultyMode::Standard) {
+    difficultyMode = DifficultyMode::Hard;
+    hardStars = 1;
+  } else if (hardStars < 7) {
+    ++hardStars;
+  } else {
+    difficultyMode = DifficultyMode::Easy;
+  }
+}
+
+void difficultyLabel(char* buffer, size_t size) {
+  if (difficultyMode == DifficultyMode::Easy) {
+    snprintf(buffer, size, "EASY");
+  } else if (difficultyMode == DifficultyMode::Standard) {
+    snprintf(buffer, size, "STANDARD");
+  } else {
+    int pos = snprintf(buffer, size, "HARD ");
+    for (int i = 0; i < hardStars && pos < static_cast<int>(size) - 1; ++i) {
+      buffer[pos++] = '*';
+    }
+    buffer[pos] = '\0';
+  }
+}
+
 int platformWidthForScore() {
   const LevelRule& level = currentLevel();
-  return max(screenW / 6, static_cast<int>(screenW * level.widthRatio));
+  return max(screenW / 8, static_cast<int>(screenW * level.widthRatio * widthScale()));
 }
 
 float randomXForWidth(int w) {
@@ -137,7 +266,7 @@ void resetGame() {
   player.x = screenW * 0.5f - playerW * 0.5f;
   player.y = screenH * 0.70f;
   player.vx = 0.0f;
-  player.vy = currentLevel().jumpVelocity;
+  player.vy = jumpVelocityForLevel();
 
   int baseY = screenH - 18;
   for (int i = 0; i < kPlatformCount; ++i) {
@@ -178,7 +307,13 @@ void emitTelemetry(const char* state, bool force = false) {
   Serial.print(levelIndex + 1);
   Serial.print(",\"alt\":\"");
   Serial.print(level.altitudeName);
-  Serial.print("\",\"screen\":[");
+  Serial.print("\",\"mode\":\"");
+  Serial.print(difficultyCode());
+  Serial.print("\",\"stars\":");
+  Serial.print(difficultyStars());
+  Serial.print(",\"win\":");
+  Serial.print(winScoreForDifficulty());
+  Serial.print(",\"screen\":[");
   Serial.print(screenW);
   Serial.print(',');
   Serial.print(screenH);
@@ -218,13 +353,16 @@ void drawHudText(int x, int y, const char* text, uint16_t color) {
 void drawHud() {
   char leftTop[16];
   char bestText[16];
+  char modeText[14];
   snprintf(leftTop, sizeof(leftTop), "L%d %d", displayedLevel, score);
   snprintf(bestText, sizeof(bestText), "B %d", bestScore);
+  snprintf(modeText, sizeof(modeText), "%s%d", difficultyShortCode(), difficultyStars());
   const LevelRule& level = currentLevel();
 
   canvas.setTextSize(1);
   drawHudText(4, 4, leftTop, level.hudColor);
   drawHudText(4, 14, level.altitudeName, level.hudColor);
+  drawHudText(4, 24, modeText, level.hudColor);
   drawHudText(screenW - canvas.textWidth(bestText) - 4, 4, bestText, level.hudColor);
 }
 
@@ -347,7 +485,7 @@ void readInput() {
   }
 
   player.vx *= kFriction;
-  float maxVX = currentLevel().maxVX;
+  float maxVX = currentLevel().maxVX * maxVXScale();
   player.vx = constrain(player.vx, -maxVX, maxVX);
 }
 
@@ -360,8 +498,8 @@ void updatePlatformsAfterScroll(float lift) {
       for (Platform& other : platforms) {
         highestY = min(highestY, other.y);
       }
-      int minGap = max(10, static_cast<int>(screenH * level.gapMinRatio));
-      int maxGap = max(minGap + 1, static_cast<int>(screenH * level.gapMaxRatio));
+      int minGap = max(10, static_cast<int>(screenH * level.gapMinRatio * gapScale()));
+      int maxGap = max(minGap + 1, static_cast<int>(screenH * level.gapMaxRatio * gapScale()));
       int gap = random(minGap, maxGap);
       spawnPlatform(p, highestY - gap);
     }
@@ -372,7 +510,7 @@ void updateGame() {
   readInput();
 
   float previousBottom = player.y + playerH;
-  player.vy += currentLevel().gravity;
+  player.vy += currentLevel().gravity * gravityScale();
   player.x += player.vx;
   player.y += player.vy;
 
@@ -389,7 +527,7 @@ void updateGame() {
       bool overlapsX = player.x + playerW > p.x && player.x < p.x + p.w;
       if (crossed && overlapsX) {
         player.y = p.y - playerH;
-        player.vy = currentLevel().jumpVelocity;
+        player.vy = jumpVelocityForLevel();
         break;
       }
     }
@@ -410,7 +548,7 @@ void updateGame() {
     gameOverDrawn = false;
   }
 
-  if (score >= kWinScore) {
+  if (score >= winScoreForDifficulty()) {
     victory = true;
     victoryDrawn = false;
     victoryStart = millis();
@@ -437,7 +575,21 @@ void showBootScreen() {
   while (true) {
     M5.update();
     emitTelemetry("home");
-    if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed()) {
+    char modeText[20];
+    difficultyLabel(modeText, sizeof(modeText));
+    M5.Display.fillRect(0, screenH - 34, screenW, 34, TFT_BLACK);
+    M5.Display.setTextSize(1);
+    M5.Display.setTextColor(TFT_WHITE, TFT_BLACK);
+    M5.Display.setCursor(6, screenH - 31);
+    M5.Display.print(modeText);
+    M5.Display.setCursor(6, screenH - 18);
+    M5.Display.print("A MODE  B START");
+
+    if (M5.BtnA.wasPressed()) {
+      cycleDifficulty();
+      emitTelemetry("home", true);
+    }
+    if (M5.BtnB.wasPressed()) {
       break;
     }
     delay(10);

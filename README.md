@@ -23,27 +23,29 @@ pio run -t upload
 pio device monitor
 ```
 
-电脑同步画面：
+电脑同步画面推荐使用串口桥接：
 
 ```bash
-python3 -m http.server 8765
+python3 tools/serial_mirror.py --serial /dev/cu.usbserial-6952522CF5 --http 8766 --host 127.0.0.1
 ```
 
-然后用 Chrome 或 Edge 打开：
+然后打开：
 
 ```text
-http://localhost:8765/mirror/
+http://127.0.0.1:8766/mirror/
 ```
 
-点击「连接 M5Stick」，选择 M5Stick 的串口即可。网页镜像和 `pio device monitor` 不能同时占用同一个串口。
+网页镜像和 `pio device monitor` 不能同时占用同一个串口。
 
 ## 操作
 
-- 开机画面：按 A 或 B 开始
+- 开机画面：默认困难 5 星
+- 开机画面按 A：切换难度，顺序为 EASY、STANDARD、HARD 1 星到 HARD 7 星
+- 开机画面按 B：开始游戏
 - 左右倾斜：移动角色
 - A 键：向左微调
 - B 键：向右微调
-- 游戏结束后按 A 或 B 回到首页，再按 A 或 B 开始
+- 游戏结束后按 A 或 B 回到首页，再按 B 开始
 - 通关后会显示小恶魔变天使的 SUCCESS 页面，并有撒花动画；按 A 或 B 回到首页
 
 ## 关卡
@@ -54,7 +56,13 @@ http://localhost:8765/mirror/
 - L4：暮色天空，间距继续变大
 - L5：平流层，节奏更快
 - L6：星层，平台更窄
-- L7：太空，速度最快，达到约 2450 分后通关
+- L7：太空，速度最快。通关分数会随难度变化，默认困难 5 星约 2450 分通关
+
+## 难度
+
+- EASY：平台更宽、间距更小、重力更轻，适合练习
+- STANDARD：标准节奏，平台和跳跃节奏适中
+- HARD：1 到 7 星，星星越多平台越窄、间距越大、重力和速度越强、通关高度越高
 
 ## 文件
 
@@ -76,3 +84,4 @@ http://localhost:8765/mirror/
 - `assets/level-*.png`：由 imagegen 生成的 7 张关卡背景源图
 - `assets/little-devil-splash.png`：早期小恶魔设计源图
 - `tools/convert_splash.py`：把图片转换为 M5Stick 可用头文件的脚本
+- `tools/serial_mirror.py`：电脑端串口桥接服务
