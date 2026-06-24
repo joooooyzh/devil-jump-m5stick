@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">GamePocket M5StickS3 Schematic and Circuit Diagram</title>
+  <desc id="desc">A standalone M5StickS3 game console schematic showing the integrated ESP32-S3 controller, display, buttons, speaker, IMU, battery, USB-C power/programming connection, and firmware blocks. No external wiring or breadboard circuit is required.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f8fb; }
+      .panel { fill: #ffffff; stroke: #c9d1d9; stroke-width: 3; }
+      .board { fill: #263238; stroke: #0f1720; stroke-width: 4; }
+      .screen { fill: #0b1830; stroke: #80d8ff; stroke-width: 4; }
+      .chip { fill: #111827; stroke: #6b7280; stroke-width: 3; }
+      .module { fill: #eef6ff; stroke: #2f80ed; stroke-width: 3; }
+      .power { fill: #fff7e6; stroke: #f59e0b; stroke-width: 3; }
+      .io { fill: #ecfdf3; stroke: #22a06b; stroke-width: 3; }
+      .note { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 2; }
+      .line { fill: none; stroke: #334155; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .power-line { fill: none; stroke: #f97316; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .signal-line { fill: none; stroke: #2563eb; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .sensor-line { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .muted { fill: #64748b; font: 28px Arial, sans-serif; }
+      .small { fill: #334155; font: 24px Arial, sans-serif; }
+      .tiny { fill: #475569; font: 20px Arial, sans-serif; }
+      .label { fill: #111827; font: 32px Arial, sans-serif; font-weight: 700; }
+      .title { fill: #0f172a; font: 54px Arial, sans-serif; font-weight: 700; }
+      .subtitle { fill: #475569; font: 28px Arial, sans-serif; }
+      .white { fill: #ffffff; }
+      .pin { fill: #e5e7eb; stroke: #111827; stroke-width: 2; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#334155"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1600" height="1000"/>
+  <text class="title" x="800" y="82" text-anchor="middle">GamePocket for M5StickS3</text>
+  <text class="subtitle" x="800" y="125" text-anchor="middle">Schematics and circuit diagrams - standalone device, no external wiring required</text>
+
+  <rect class="panel" x="70" y="165" width="1460" height="720" rx="22"/>
+
+  <rect class="board" x="600" y="235" width="400" height="560" rx="52"/>
+  <rect class="screen" x="660" y="285" width="280" height="260" rx="18"/>
+  <text class="white" x="800" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700">GamePocket</text>
+  <text class="white" x="800" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="25">Launcher + 2 games</text>
+
+  <rect class="chip" x="690" y="595" width="220" height="92" rx="10"/>
+  <text class="white" x="800" y="637" text-anchor="middle" font-family="Arial, sans-serif" font-size="29" font-weight="700">ESP32-S3</text>
+  <text class="white" x="800" y="670" text-anchor="middle" font-family="Arial, sans-serif" font-size="20">M5StickS3 main MCU</text>
+
+  <circle class="io" cx="700" cy="735" r="28"/>
+  <text class="small" x="700" y="745" text-anchor="middle">A</text>
+  <circle class="io" cx="900" cy="735" r="28"/>
+  <text class="small" x="900" y="745" text-anchor="middle">B</text>
+  <rect class="pin" x="780" y="808" width="40" height="36" rx="6"/>
+  <text class="tiny" x="800" y="832" text-anchor="middle">USB</text>
+
+  <rect class="power" x="150" y="240" width="330" height="120" rx="18"/>
+  <text class="label" x="315" y="286" text-anchor="middle">USB-C</text>
+  <text class="small" x="315" y="323" text-anchor="middle">Power + firmware upload</text>
+
+  <rect class="power" x="150" y="430" width="330" height="120" rx="18"/>
+  <text class="label" x="315" y="476" text-anchor="middle">Built-in Battery</text>
+  <text class="small" x="315" y="513" text-anchor="middle">Portable power source</text>
+
+  <rect class="module" x="1115" y="235" width="330" height="120" rx="18"/>
+  <text class="label" x="1280" y="281" text-anchor="middle">LCD Display</text>
+  <text class="small" x="1280" y="318" text-anchor="middle">GamePocket UI and gameplay</text>
+
+  <rect class="io" x="1115" y="405" width="330" height="120" rx="18"/>
+  <text class="label" x="1280" y="451" text-anchor="middle">Buttons A / B</text>
+  <text class="small" x="1280" y="488" text-anchor="middle">Select, play, jump, back</text>
+
+  <rect class="io" x="1115" y="575" width="330" height="120" rx="18"/>
+  <text class="label" x="1280" y="621" text-anchor="middle">IMU / Accelerometer</text>
+  <text class="small" x="1280" y="658" text-anchor="middle">Tilt controls</text>
+
+  <rect class="module" x="150" y="620" width="330" height="120" rx="18"/>
+  <text class="label" x="315" y="666" text-anchor="middle">Speaker</text>
+  <text class="small" x="315" y="703" text-anchor="middle">Music and sound effects</text>
+
+  <path class="power-line" d="M480 300 H575 C590 300 590 820 780 820" marker-end="url(#arrow)"/>
+  <path class="power-line" d="M480 490 H545 C575 490 575 642 690 642" marker-end="url(#arrow)"/>
+  <path class="signal-line" d="M910 625 C1030 625 1010 295 1115 295" marker-end="url(#arrow-blue)"/>
+  <path class="signal-line" d="M928 735 C1020 735 1015 465 1115 465" marker-end="url(#arrow-blue)"/>
+  <path class="sensor-line" d="M910 662 C1035 662 1015 635 1115 635" marker-end="url(#arrow-green)"/>
+  <path class="signal-line" d="M690 660 C560 660 555 680 480 680" marker-end="url(#arrow-blue)"/>
+
+  <text class="tiny" x="520" y="278">5V USB / 3.3V board regulation</text>
+  <text class="tiny" x="1015" y="274">display bus</text>
+  <text class="tiny" x="1020" y="443">GPIO input</text>
+  <text class="tiny" x="1020" y="613">I2C / internal bus</text>
+  <text class="tiny" x="495" y="650">audio output</text>
+
+  <rect class="note" x="150" y="800" width="1295" height="54" rx="12"/>
+  <text class="small" x="800" y="835" text-anchor="middle">Circuit note: GamePocket uses the stock M5StickS3 board only. No breadboard, jumper wires, external sensors, or custom PCB are used.</text>
+
+  <text class="muted" x="80" y="940">Project repository: https://github.com/joooooyzh/gamepocket-m5stack-sticks3</text>
+  <text class="muted" x="80" y="975">Hardware: M5StickS3 development device with integrated display, buttons, IMU, speaker, battery, USB-C, and ESP32-S3 MCU.</text>
+</svg>
